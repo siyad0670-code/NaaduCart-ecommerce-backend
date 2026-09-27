@@ -1,24 +1,24 @@
-import nodemailer from "nodemailer";
-import dotenv from 'dotenv';
-dotenv.config()
+import { Resend } from "resend";
+import dotenv from "dotenv";
 
+dotenv.config();
 
-const transport=nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
-    auth:{
-        user:process.env.EMAIL_USER,
-        pass:process.env.EMAIL_PASS
-    }
-})
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-const sendEmail=async (to,subject,text)=>{
-    await transport.sendMail({
-        from:process.env.EMAIL_USER,
-        to,
+const sendEmail = async (to, subject, text) => {
+    const { data, error } = await resend.emails.send({
+        from: "NaaduCart <onboarding@resend.dev>",
+        to: [to],
         subject,
         text
-    })
-}
-export default sendEmail
+    });
+
+    if (error) {
+        console.error("Resend email error:", error);
+        throw new Error(error.message);
+    }
+
+    console.log("Email sent:", data);
+};
+
+export default sendEmail;
